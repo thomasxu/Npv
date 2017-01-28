@@ -24,8 +24,6 @@ namespace NpvApi
 
             if (env.IsEnvironment("Development"))
             {
-                // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
-                builder.AddApplicationInsightsSettings(developerMode: true);
             }
 
             builder.AddEnvironmentVariables();
@@ -37,6 +35,7 @@ namespace NpvApi
         // This method gets called by the runtime. Use this method to add services to the container
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            //Allow all for cors policy for now
             services.AddCors(o => o.AddPolicy("AllowAllPolicy",
                 corsBuilder => corsBuilder.AllowAnyHeader()
                 .AllowAnyMethod()
@@ -46,16 +45,20 @@ namespace NpvApi
 
             // Add framework services.
             services.AddMvc();
-            services.AddApplicationInsightsTelemetry(Configuration);
 
-            //Add autofac
+            //Add autofac 
+            IContainer container = BuildContainer(services);
+            return container.Resolve<IServiceProvider>();
+        }
+
+        private static IContainer BuildContainer(IServiceCollection services)
+        {
             var builder = new Autofac.ContainerBuilder();
             builder.RegisterType<NpvCalculator>().As<INpvCalculator>();
 
             builder.Populate(services);
             var container = builder.Build();
-
-            return container.Resolve<IServiceProvider>();
+            return container;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -64,11 +67,7 @@ namespace NpvApi
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseApplicationInsightsRequestTelemetry();
-
-            app.UseApplicationInsightsExceptionTelemetry();
-
-
+            //Allow all for cors policy for now
             app.UseCors("AllowAllPolicy");
             app.UseMvc();
         }
