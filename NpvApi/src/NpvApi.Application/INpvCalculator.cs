@@ -5,6 +5,6 @@ namespace NpvApi.Application
 {
     public interface INpvCalculator
     {
-        IEnumerable<NpvResult> Calculate(NpvOptions options);
+        IList<NpvResult> Calculate(NpvOptions options);
     }
 }

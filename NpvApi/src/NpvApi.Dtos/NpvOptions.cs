@@ -10,11 +10,17 @@ namespace NpvApi.Dtos
     public class NpvOptions
     {
         [Range(double.MinValue, 0)]    
-        public decimal outflow { get; set; }
+        public decimal Outflow { get; set; }
 
-        public Inflow[] Inflows { get; set; }
+        public IList<Inflow> Inflows { get; set; }
 
         public RateOption RateOption { get; set; }
+
+        public NpvOptions()
+        {
+             Inflows = new List<Inflow>();
+             RateOption = new RateOption();
+        }
     }
 
     public class RateOption
