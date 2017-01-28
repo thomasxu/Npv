@@ -1,0 +1,23 @@
+<!--render calculation result-->
+<template>
+  <div class="panel panel-default">
+    <div class="panel-heading">Calculated NPV Result</div>
+
+    <br />
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Discount Rate</th>
+          <th>Net Present Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr repeat.for="result of results">
+          <td>${result.discountRate}</td>
+          <td>${result.netPresentValue}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+</template>

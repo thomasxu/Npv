@@ -1,0 +1,87 @@
+<template>
+  <require from="./npv-results"></require>
+  <require from="./notification"></require>
+
+  <h3>Net Present Value Calculator</h3>
+  <hr />
+  <notification hasservererror.bind="hasServerError"></notification>
+  <div class="row">
+    <div class="col-sm-8">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <form submit.delegate="calculate()" class="form-horizontal">
+            <!--render intial outflow-->
+            <div class="form-group">
+              <label for="outflow" class="control-label col-sm-3">Initial Cost</label>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <span class="input-group-addon">$</span>
+                  <input type="number" class="form-control" id="outflow" placeholder="Initial Cost" value.bind="npvOption.outflow & validate"
+                    step="any">
+                </div>
+              </div>
+            </div>
+
+            <!--render inflows-->
+            <div class="form-group" repeat.for="inflow of npvOption.inflows">
+              <label for="inflow${$index + 1}" class="control-label  col-sm-3">Inflow ${$index + 1}</label>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <span class="input-group-addon">$</span>
+                  <input type="number" id="inflow${$index + 1}" class="form-control" placeholder="Inflow ${$index + 1}" value.bind="inflow.value & validate"
+                    step="any">
+                </div>
+              </div>
+            </div>
+            <hr />
+
+            <!--render rate(lower,  higher, and increment)-->
+            <div class="form-group">
+              <label class="control-label  col-sm-3" for="lowerDiscount">Lower Discount</label>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <input type="number" class="form-control" id="lowerDiscount" placeholder="Lower Discount" value.bind="npvOption.rateOption.lowerDiscount & validate"
+                    step="any">
+                  <span class="input-group-addon">%</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-3" for="upperDiscount">Upper Discount</label>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <input type="number" class="form-control" id="upperDiscount" placeholder="Upper Discount" value.bind="npvOption.rateOption.upperDiscount & validate"
+                    step="any">
+                  <span class="input-group-addon">%</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-3" for="discountIncrement">Discount Increment</label>
+              <div class="col-sm-6">
+                <div class="input-group">
+                  <input type="number" class="form-control" id="discountIncrement" placeholder="Discount Increment" value.bind="npvOption.rateOption.discountIncrement & validate"
+                    step="any">
+                  <span class="input-group-addon">%</span>
+                </div>
+              </div>
+            </div>
+
+            <!--render submit and reset buttons-->
+            <div class="form-group">
+              <div class="col-sm-6 col-sm-offset-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <buton class="btn btn-link" click.trigger="reset()">Reset</buton><br/>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!--render calculation result-->
+    <div class="col-sm-4" if.bind="npvResults">
+      <npv-results results.bind="npvResults"></npv-results>
+    </div>
+  </div>
+</template>
