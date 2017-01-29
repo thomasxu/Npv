@@ -1,14 +1,14 @@
 import {HttpClient, json} from 'aurelia-fetch-client';
 import {inject} from 'aurelia-framework';
 import {NpvOption, RateOption, Inflow} from '../models/npv-option';
+import * as appConfig from '../../environment';
 
 @inject(HttpClient)
-export class NpvService {
-    readonly BaseUrlNpvService = "http://localhost:57916/api/npv/";
+export class NpvService {   
 
     constructor(private http: HttpClient){
          http.configure(config => {
-            config.withBaseUrl(this.BaseUrlNpvService);
+            config.withBaseUrl(appConfig.default.baseUrlNpvService);
         });
     }           
 

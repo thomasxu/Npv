@@ -17,7 +17,7 @@ namespace NpvApi.Dtos.Validators
 
 
         /// <summary>
-        /// Same logic has been applied in client also by Aurelia validation rule
+        /// Same logic has been applied in client by Aurelia validation rule
         /// </summary>
         /// <param name="value"></param>
         /// <param name="context"></param>

@@ -37,7 +37,7 @@ namespace NpvApi.Dtos.Validators
             var currentValue = value as Decimal?;
 
             var isValid =
-                    fieldToCompare == null ||
+                    fieldToCompareValue == null ||
                     currentValue == null ||
                     (currentValue >= fieldToCompareValue);
 

@@ -8,15 +8,20 @@ using Xunit;
 
 namespace NpvApi.Test
 {
-
+    /// ***************************************************************************************
+    /// Important Behavior test controller inturn call application service with same input data
+    /// Or return BadRequest status code
+    /// The concrete calculator test will be done on NvpApi.Application.Test
+    /// ***************************************************************************************
     public class NpcControllerTest
     {
         [Theory]
         [InlineData(new double[] {4381.35}, 2, 2, 0, 10000, new double[] {4000, 5000, 6000})]
-        public void InvalidInputShouldReturnBadRequestWithModelErrors(double[] expectedNpvResult,
+        public void InvalidInputShouldReturnBadRequestStatusWithModelErrors(double[] expectedNpvResult,
             decimal lowerDiscount, decimal upperDiscount, decimal increment, decimal outflow,
             double[] inflows)
         {
+            //Arrange
             var stubCalculator = Substitute.For<INpvCalculator>();
             var controller = new NpvController(stubCalculator);
 
@@ -40,6 +45,8 @@ namespace NpvApi.Test
             const string errorPropertyValue = "Required";
             //Add the error to model state to mock 400 BadRequest
             controller.ModelState.AddModelError(errorPropertyKey, errorPropertyValue);
+
+            //Act
             var actionResult = controller.Post(npvOptions);
             var badRequestResult = actionResult as BadRequestObjectResult;
 
@@ -55,7 +62,7 @@ namespace NpvApi.Test
         }
 
 
-
+        
         [Theory]
         [InlineData(new double[] {4381.35}, 2, 2, 0, 10000, new double[] {4000, 5000, 6000})]
         public void ValidInputShouldCallApplicationServiceWithCorrectDataAndReturnOk(double[] expectedNpvResult,

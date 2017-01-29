@@ -11,7 +11,7 @@ namespace NpvApi.Controllers
     [Route("api/[controller]")]
     public class NpvController : Controller
     {
-        private INpvCalculator _nvpCalculator;
+        private readonly INpvCalculator _nvpCalculator;
 
         public NpvController(INpvCalculator nvpCalculator)
         {
