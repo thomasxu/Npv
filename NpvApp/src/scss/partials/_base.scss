@@ -1,0 +1,10 @@
+
+body {
+    background: $white
+}
+
+@include  border-box();
+
+.no-border-left {
+    border-left-width: 0;    
+}

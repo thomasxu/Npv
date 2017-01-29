@@ -5,7 +5,7 @@
   <h3>Net Present Value Calculator1</h3>
   <hr />
   <notification hasservererror.bind="hasServerError"></notification>
-  <div class="row">
+  <div class="row" id="npvCalculator">
     <div class="col-sm-8">
       <div class="panel panel-default">
         <div class="panel-body">
@@ -23,7 +23,7 @@
             </div>
 
             <!--render inflows-->
-            <div class="form-group" repeat.for="inflow of npvOption.inflows">
+            <div class="form-group" repeat.for="inflow of npvOption.inflows" id = "inflows">
               <label for="inflow${$index + 1}" class="control-label  col-sm-3">Inflow ${$index + 1}</label>
               <div class="col-sm-6">
                 <div class="input-group">

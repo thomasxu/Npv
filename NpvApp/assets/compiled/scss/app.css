@@ -1,11 +1,21 @@
-.navbar-brand {
-  padding: 2px 15px !important; }
+/*!
+    I have setup the autoprefixer but it seems not working so just use mixin instead
+*/
+body {
+  background: #ffffff; }
 
-.navbar-brand > img {
-  height: 100%; }
-
-.fa {
-  display: table-cell !important; }
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
 
 .no-border-left {
   border-left-width: 0; }
+
+.navbar-brand {
+  padding: 2px 15px !important; }
+  .navbar-brand > img {
+    height: 100%; }
+
+#inflows .input-group .fa {
+  display: table-cell !important; }

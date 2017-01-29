@@ -1,0 +1,25 @@
+
+@import "partials/variables";
+@import "partials/mixins";
+@import "partials/base";
+
+.navbar-brand {
+    padding: 2px 15px !important;
+
+    > img {
+        height: 100%;
+    }
+}
+
+
+#inflows 
+{
+    .input-group .fa {
+        display: table-cell !important;    
+    }
+}
+
+
+
+
+
