@@ -51,7 +51,7 @@ namespace NpvApi.Dtos.Validators
                 lowerRateProprtyValue == null || 
                 upperRateProprtyValue == null || 
                 increment == null ||
-                (increment.Value > 0 && increment.Value <= upperRateProprtyValue - lowerRateProprtyValue);
+                (increment.Value >= 0 && increment.Value <= upperRateProprtyValue - lowerRateProprtyValue);
 
             return
                 isValid? ValidationResult.Success:

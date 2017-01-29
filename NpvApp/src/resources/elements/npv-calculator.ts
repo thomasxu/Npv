@@ -9,7 +9,7 @@ import { NpvService } from '../services/npv-service'
 @inject(NewInstance.of(ValidationController), NpvService)
 export class NpvCalculator {
   //How many inflow input will be rendered
-  @bindable inflowCount: number = 5;
+  @bindable initialInflowCount: number = 5;
   //calculation input parameters
   npvOption: NpvOption;
   //calculation output parameters
@@ -17,15 +17,38 @@ export class NpvCalculator {
   //For showing server error e.g. when api is not avaliable
   hasServerError: boolean = undefined;
   readonly RequiredValidationMsg: string = "Required";
+  readonly MaxInflowCount = 15;
 
 
   constructor(private validationController: ValidationController, private npvService: NpvService) {
-    console.log(this.inflowCount);
+    console.log(this.initialInflowCount);
 
     //Initialise how many inflows will be rendered initially and add validation rules    
     this.initViewModelAddValidationRules();
 
     this.validationController.addRenderer(new BootstrapFormRenderer());
+  }
+
+  removeInflow(index:number) {    
+    if(this.npvOption.inflows.length <= 1)
+    {
+        //Do not have time for adding bootstrap model dialog just alert here
+        alert("You must have at least 1 inflow.");
+        return false;
+    }
+    this.npvOption.inflows.splice(index, 1);    
+  }
+
+  addInflow(index:number) {
+     if(this.npvOption.inflows.length >= 15)
+    {
+        //Do not have time for adding bootstrap model dialog just alert here
+        alert("Only 15 inflows is allow.");
+        return false;
+    }
+
+    this.npvOption.inflows.splice(index + 1, 0, {value: undefined});
+    this.applyValidationRules();
   }
 
   calculate() {      
@@ -43,11 +66,12 @@ export class NpvCalculator {
   calculateImpl() {
     this.hasServerError = undefined;    
     this.npvService.Calculate(this.npvOption)
-      .then(r => {        
-        this.hasServerError = false;        
+      .then(r => {                   
+        this.hasServerError = false;
+        console.log(r);        
         this.npvResults = r
       }).bind(this)
-      .catch(function (err) {
+      .catch(function (err) {                
         console.error(err);        
         this.hasServerError = true;
       });
@@ -62,7 +86,7 @@ export class NpvCalculator {
   initViewModelAddValidationRules() {
     this.validationController.reset();
     //Init calculator input parameters
-    this.npvOption = new NpvOption(this.inflowCount);
+    this.npvOption = new NpvOption(this.initialInflowCount);
 
     this.createCustomValidationRules();
     this.applyValidationRules();
@@ -102,15 +126,6 @@ export class NpvCalculator {
      ValidationRules.customRule(
       'LessThanOrEqualToDifferenceOfDiscountsAndPositive',
       (value, obj) => {
-    console.log(this.npvOption.rateOption.lowerDiscount);
-    console.log(this.npvOption.rateOption.upperDiscount);
-    console.log(this.npvOption.rateOption.discountIncrement);
-
-     console.log(this.npvOption.inflows[0].value);
-     console.log(this.npvOption.outflow);
-
-
-
         let lowerDiscount: number = this.npvOption.rateOption.lowerDiscount;
         let upperDiscount: number = this.npvOption.rateOption.upperDiscount;
 
@@ -128,12 +143,14 @@ export class NpvCalculator {
   }
 
   applyValidationRules() {
-    for (var i = 0; i < this.inflowCount; i++) {
+    let inflows = this.npvOption.inflows;
+
+    for (var i = 0; i < inflows.length; i++) {
       ValidationRules
         .ensure((ifs: Inflow) => ifs.value)
         .required().withMessage(this.RequiredValidationMsg)
         .satisfiesRule("positiveNumber")
-        .on(this.npvOption.inflows[i]);
+        .on(inflows[i]);
     }
 
 

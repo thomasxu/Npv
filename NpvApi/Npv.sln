@@ -20,6 +20,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NpvApi.Dtos.Test", "src\Npv
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NpvApi.Application.Test", "src\NpvApi.Application.Test\NpvApi.Application.Test.xproj", "{91312F92-5B66-40C0-AC33-8195AB59AE4A}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NpvApi.Test", "NpvApi.Test\NpvApi.Test.xproj", "{F64C6430-70FA-4834-BF87-BA83AC76091C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{91312F92-5B66-40C0-AC33-8195AB59AE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91312F92-5B66-40C0-AC33-8195AB59AE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91312F92-5B66-40C0-AC33-8195AB59AE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F64C6430-70FA-4834-BF87-BA83AC76091C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F64C6430-70FA-4834-BF87-BA83AC76091C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F64C6430-70FA-4834-BF87-BA83AC76091C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F64C6430-70FA-4834-BF87-BA83AC76091C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,5 +62,6 @@ Global
 		{85D4183E-6E83-4ED0-BDEF-BD9DB2AF41F8} = {AB3EA1F2-8A91-4DE4-8C4F-3857B36EB3B2}
 		{FDD8E504-3AAB-40DA-9202-AC6FC14E5531} = {AB3EA1F2-8A91-4DE4-8C4F-3857B36EB3B2}
 		{91312F92-5B66-40C0-AC33-8195AB59AE4A} = {AB3EA1F2-8A91-4DE4-8C4F-3857B36EB3B2}
+		{F64C6430-70FA-4834-BF87-BA83AC76091C} = {AB3EA1F2-8A91-4DE4-8C4F-3857B36EB3B2}
 	EndGlobalSection
 EndGlobal

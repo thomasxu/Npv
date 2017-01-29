@@ -244,13 +244,20 @@ define('resources/services/npv-service',["require", "exports", "aurelia-fetch-cl
     "use strict";
     var NpvService = (function () {
         function NpvService(http) {
+            var _this = this;
             this.http = http;
+            this.BaseUrlNpvService = "http://localhost:57916/api/npv/";
             http.configure(function (config) {
-                config.withBaseUrl('http://localhost:57916/api/npv/');
+                config.withBaseUrl(_this.BaseUrlNpvService);
             });
         }
         NpvService.prototype.Calculate = function (npvOption) {
-            return this.http.fetch('calculate', { method: 'post', body: aurelia_fetch_client_1.json(npvOption) }).then(function (response) { return response.json(); });
+            return this.http.fetch('calculate', { method: 'post', body: aurelia_fetch_client_1.json(npvOption) }).then(function (response) {
+                if (response.status == 400) {
+                    throw new Error("Model valiation fail on server side");
+                }
+                return response.json();
+            });
         };
         return NpvService;
     }());
@@ -276,13 +283,29 @@ define('resources/elements/npv-calculator',["require", "exports", "aurelia-frame
         function NpvCalculator(validationController, npvService) {
             this.validationController = validationController;
             this.npvService = npvService;
-            this.inflowCount = 5;
+            this.initialInflowCount = 5;
             this.hasServerError = undefined;
             this.RequiredValidationMsg = "Required";
-            console.log(this.inflowCount);
+            this.MaxInflowCount = 15;
+            console.log(this.initialInflowCount);
             this.initViewModelAddValidationRules();
             this.validationController.addRenderer(new bootstrap_form_renderer_1.BootstrapFormRenderer());
         }
+        NpvCalculator.prototype.removeInflow = function (index) {
+            if (this.npvOption.inflows.length <= 1) {
+                alert("You must have at least 1 inflow.");
+                return false;
+            }
+            this.npvOption.inflows.splice(index, 1);
+        };
+        NpvCalculator.prototype.addInflow = function (index) {
+            if (this.npvOption.inflows.length >= 15) {
+                alert("Only 15 inflows is allow.");
+                return false;
+            }
+            this.npvOption.inflows.splice(index + 1, 0, { value: undefined });
+            this.applyValidationRules();
+        };
         NpvCalculator.prototype.calculate = function () {
             var _this = this;
             this.validationController
@@ -299,6 +322,7 @@ define('resources/elements/npv-calculator',["require", "exports", "aurelia-frame
             this.npvService.Calculate(this.npvOption)
                 .then(function (r) {
                 _this.hasServerError = false;
+                console.log(r);
                 _this.npvResults = r;
             }).bind(this)
                 .catch(function (err) {
@@ -313,7 +337,7 @@ define('resources/elements/npv-calculator',["require", "exports", "aurelia-frame
         };
         NpvCalculator.prototype.initViewModelAddValidationRules = function () {
             this.validationController.reset();
-            this.npvOption = new npv_option_1.NpvOption(this.inflowCount);
+            this.npvOption = new npv_option_1.NpvOption(this.initialInflowCount);
             this.createCustomValidationRules();
             this.applyValidationRules();
         };
@@ -333,11 +357,6 @@ define('resources/elements/npv-calculator',["require", "exports", "aurelia-frame
                 return isNaN(upperRate) || isNaN(lowerRate) || (upperRate > 0 && upperRate >= lowerRate);
             }, "Upper discount must be positive and greater than or equal to lower discount");
             aurelia_validation_1.ValidationRules.customRule('LessThanOrEqualToDifferenceOfDiscountsAndPositive', function (value, obj) {
-                console.log(_this.npvOption.rateOption.lowerDiscount);
-                console.log(_this.npvOption.rateOption.upperDiscount);
-                console.log(_this.npvOption.rateOption.discountIncrement);
-                console.log(_this.npvOption.inflows[0].value);
-                console.log(_this.npvOption.outflow);
                 var lowerDiscount = _this.npvOption.rateOption.lowerDiscount;
                 var upperDiscount = _this.npvOption.rateOption.upperDiscount;
                 var increment = parseFloat(value);
@@ -350,12 +369,13 @@ define('resources/elements/npv-calculator',["require", "exports", "aurelia-frame
             }, " Discount Increment must be positive and greater than or equal to difference of lower and higher discounts");
         };
         NpvCalculator.prototype.applyValidationRules = function () {
-            for (var i = 0; i < this.inflowCount; i++) {
+            var inflows = this.npvOption.inflows;
+            for (var i = 0; i < inflows.length; i++) {
                 aurelia_validation_1.ValidationRules
                     .ensure(function (ifs) { return ifs.value; })
                     .required().withMessage(this.RequiredValidationMsg)
                     .satisfiesRule("positiveNumber")
-                    .on(this.npvOption.inflows[i]);
+                    .on(inflows[i]);
             }
             aurelia_validation_1.ValidationRules
                 .ensure(function (opt) { return opt.outflow; })
@@ -379,7 +399,7 @@ define('resources/elements/npv-calculator',["require", "exports", "aurelia-frame
     __decorate([
         aurelia_framework_1.bindable,
         __metadata("design:type", Number)
-    ], NpvCalculator.prototype, "inflowCount", void 0);
+    ], NpvCalculator.prototype, "initialInflowCount", void 0);
     NpvCalculator = __decorate([
         aurelia_framework_2.inject(aurelia_framework_2.NewInstance.of(aurelia_validation_1.ValidationController), npv_service_1.NpvService),
         __metadata("design:paramtypes", [aurelia_validation_1.ValidationController, npv_service_1.NpvService])
@@ -1947,6 +1967,6 @@ define('text!app.html', ['module'], function(module) { module.exports = "<templa
 define('text!resources/elements/about.html', ['module'], function(module) { module.exports = "<template><h1>About page just to demo the route</h1></template>"; });
 define('text!resources/elements/nav-bar.html', ['module'], function(module) { module.exports = "<template><nav class=\"navbar navbar-default navbar-static-top\"><div class=\"container\"><div class=\"navbar-header\"><button type=\"button\" class=\"navbar-toggle collapsed\" data-toggle=\"collapse\" data-target=\"#navbarContent\"><span class=\"sr-only\">Toggle navigation</span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span></button> <a class=\"navbar-brand\" href=\"#\"><img src=\"assets/images/octet-finance-logo.svg\" alt=\"Octet\"></a></div><div id=\"navbarContent\" class=\"navbar-collapse collapse\"><ul class=\"nav navbar-nav navbar-right\"><li repeat.for=\"row of router.navigation\" class=\"${row.isActive ? 'active' : ''}\"><a data-toggle=\"collapse\" data-target=\"#bs-example-navbar-collapse-1.in\" href.bind=\"row.href\">${row.title}</a></li></ul></div></div></nav></template>"; });
 define('text!resources/elements/notification.html', ['module'], function(module) { module.exports = "<template><div class=\"alert alert-success alert-dismissible\" if.bind=\"hasservererror === false\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>Congratulations!</strong> Calculate successfully. You can click reset to clear all information and do the calulation again.</div><div class=\"alert alert-danger alert-dismissible\" role=\"alert\" if.bind=\"hasservererror === true\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button> <strong>Unexpected Server Error:</strong> Please contact our friendly technical support for help.</div></template>"; });
-define('text!resources/elements/npv-calculator.html', ['module'], function(module) { module.exports = "<template><require from=\"./npv-results\"></require><require from=\"./notification\"></require><h3>Net Present Value Calculator</h3><hr><notification hasservererror.bind=\"hasServerError\"></notification><div class=\"row\"><div class=\"col-sm-8\"><div class=\"panel panel-default\"><div class=\"panel-body\"><form submit.delegate=\"calculate()\" class=\"form-horizontal\"><div class=\"form-group\"><label for=\"outflow\" class=\"control-label col-sm-3\">Initial Cost</label><div class=\"col-sm-6\"><div class=\"input-group\"><span class=\"input-group-addon\">$</span> <input type=\"number\" class=\"form-control\" id=\"outflow\" placeholder=\"Initial Cost\" value.bind=\"npvOption.outflow & validate\" step=\"any\"></div></div></div><div class=\"form-group\" repeat.for=\"inflow of npvOption.inflows\"><label for=\"inflow${$index + 1}\" class=\"control-label col-sm-3\">Inflow ${$index + 1}</label><div class=\"col-sm-6\"><div class=\"input-group\"><span class=\"input-group-addon\">$</span> <input type=\"number\" id=\"inflow${$index + 1}\" class=\"form-control\" placeholder=\"Inflow ${$index + 1}\" value.bind=\"inflow.value & validate\" step=\"any\"></div></div></div><hr><div class=\"form-group\"><label class=\"control-label col-sm-3\" for=\"lowerDiscount\">Lower Discount</label><div class=\"col-sm-6\"><div class=\"input-group\"><input type=\"number\" class=\"form-control\" id=\"lowerDiscount\" placeholder=\"Lower Discount\" value.bind=\"npvOption.rateOption.lowerDiscount & validate\" step=\"any\"> <span class=\"input-group-addon\">%</span></div></div></div><div class=\"form-group\"><label class=\"control-label col-sm-3\" for=\"upperDiscount\">Upper Discount</label><div class=\"col-sm-6\"><div class=\"input-group\"><input type=\"number\" class=\"form-control\" id=\"upperDiscount\" placeholder=\"Upper Discount\" value.bind=\"npvOption.rateOption.upperDiscount & validate\" step=\"any\"> <span class=\"input-group-addon\">%</span></div></div></div><div class=\"form-group\"><label class=\"control-label col-sm-3\" for=\"discountIncrement\">Discount Increment</label><div class=\"col-sm-6\"><div class=\"input-group\"><input type=\"number\" class=\"form-control\" id=\"discountIncrement\" placeholder=\"Discount Increment\" value.bind=\"npvOption.rateOption.discountIncrement & validate\" step=\"any\"> <span class=\"input-group-addon\">%</span></div></div></div><div class=\"form-group\"><div class=\"col-sm-6 col-sm-offset-3\"><button type=\"submit\" class=\"btn btn-primary\">Submit</button><buton class=\"btn btn-link\" click.trigger=\"reset()\">Reset</buton><br></div></div></form></div></div></div><div class=\"col-sm-4\" if.bind=\"npvResults\"><npv-results results.bind=\"npvResults\"></npv-results></div></div></template>"; });
+define('text!resources/elements/npv-calculator.html', ['module'], function(module) { module.exports = "<template><require from=\"./npv-results\"></require><require from=\"./notification\"></require><h3>Net Present Value Calculator</h3><hr><notification hasservererror.bind=\"hasServerError\"></notification><div class=\"row\"><div class=\"col-sm-8\"><div class=\"panel panel-default\"><div class=\"panel-body\"><form submit.delegate=\"calculate()\" class=\"form-horizontal\"><div class=\"form-group\"><label for=\"outflow\" class=\"control-label col-sm-3\">Initial Cost</label><div class=\"col-sm-6\"><div class=\"input-group\"><span class=\"input-group-addon\">$</span> <input type=\"number\" class=\"form-control\" id=\"outflow\" placeholder=\"Initial Cost\" value.bind=\"npvOption.outflow & validate\" step=\"any\"></div></div></div><div class=\"form-group\" repeat.for=\"inflow of npvOption.inflows\"><label for=\"inflow${$index + 1}\" class=\"control-label col-sm-3\">Inflow ${$index + 1}</label><div class=\"col-sm-6\"><div class=\"input-group\"><span class=\"input-group-addon\">$</span> <input type=\"number\" id=\"inflow${$index + 1}\" class=\"form-control\" placeholder=\"Inflow ${$index + 1}\" value.bind=\"inflow.value & validate\" step=\"any\"> <span click.delegate=\"removeInflow($index)\" class=\"input-group-addon fa fa-remove no-border-left\"></span> <span click.delegate=\"addInflow($index)\" class=\"input-group-addon fa fa-plus\"></span></div></div></div><hr><div class=\"form-group\"><label class=\"control-label col-sm-3\" for=\"lowerDiscount\">Lower Discount</label><div class=\"col-sm-6\"><div class=\"input-group\"><input type=\"number\" class=\"form-control\" id=\"lowerDiscount\" placeholder=\"Lower Discount\" value.bind=\"npvOption.rateOption.lowerDiscount & validate\" step=\"any\"> <span class=\"input-group-addon\">%</span></div></div></div><div class=\"form-group\"><label class=\"control-label col-sm-3\" for=\"upperDiscount\">Upper Discount</label><div class=\"col-sm-6\"><div class=\"input-group\"><input type=\"number\" class=\"form-control\" id=\"upperDiscount\" placeholder=\"Upper Discount\" value.bind=\"npvOption.rateOption.upperDiscount & validate\" step=\"any\"> <span class=\"input-group-addon\">%</span></div></div></div><div class=\"form-group\"><label class=\"control-label col-sm-3\" for=\"discountIncrement\">Discount Increment</label><div class=\"col-sm-6\"><div class=\"input-group\"><input type=\"number\" class=\"form-control\" id=\"discountIncrement\" placeholder=\"Discount Increment\" value.bind=\"npvOption.rateOption.discountIncrement & validate\" step=\"any\"> <span class=\"input-group-addon\">%</span></div></div></div><div class=\"form-group\"><div class=\"col-sm-6 col-sm-offset-3\"><button type=\"submit\" class=\"btn btn-primary\">Submit</button><buton class=\"btn btn-link\" click.trigger=\"reset()\">Reset</buton><br></div></div></form></div></div></div><div class=\"col-sm-4\" if.bind=\"npvResults\"><npv-results results.bind=\"npvResults\"></npv-results></div></div></template>"; });
 define('text!resources/elements/npv-results.html', ['module'], function(module) { module.exports = "<template><div class=\"panel panel-default\"><div class=\"panel-heading\">Calculated NPV Result</div><br><table class=\"table\"><thead><tr><th>Discount Rate</th><th>Net Present Value</th></tr></thead><tbody><tr repeat.for=\"result of results\"><td>${result.discountRate}</td><td>${result.netPresentValue}</td></tr></tbody></table></div></template>"; });
 //# sourceMappingURL=app-bundle.js.map

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace NpvApi.Application
 {
     public class NpvCalculator: INpvCalculator
-    {
-        //Extensive validations have been done API level by Custom DataAnnotationAttribute, 
-        //so will not do validation again here.
+    {  
+        private static readonly int MaxLoopCount = 20;
+        
         public IList<NpvResult> Calculate(NpvOptions options) {
             decimal lowerDiscount = options.RateOption.LowerDiscount;
             decimal upperDiscount = options.RateOption.UpperDiscount;
@@ -19,9 +19,11 @@ namespace NpvApi.Application
             var inflows = options.Inflows.Select(i => i.Value).ToList();
 
 
-            var result = new List<NpvResult>();            
+            var result = new List<NpvResult>();
+            int loopCount = 0;          
             do
             {
+
                 var npv = (double)initialOutflow;
 
                 for (int i = 0; i < inflows.Count(); i++)
@@ -38,11 +40,18 @@ namespace NpvApi.Application
 
                 lowerDiscount += increment;
 
+                //The max results we will return to user to prevent 
+                //malicious user putting some edge case input to make calculation do very long loop
+                loopCount++;
+                if (loopCount >= MaxLoopCount)
+                {
+                    break;
+                }
+
                 //If increment = 0 means user only want to calculate one result instead of serial of results
                 //In this case normally should set lowerDiscount = higherDiscount, but user specify
                 //different value for lower or higherDiscount we just assume we will use the lowerDiscount
-                //and make sure we break out of the loop. Negtive should already been checked by ValidationAttribute
-                //Just double check and break it since we do not want infinite loop.
+                //and make sure we break out of the loop. Negtive should already been checked by ValidationAttribute and should never happen.
                 if (increment <= 0)
                 {
                     break;

@@ -55,5 +55,24 @@ namespace NpvApi.Dtos.Test.ValidatorsTest
             //No exception means succes
             Assert.Throws<ValidationException>(() => greaterThanAttribute.Validate(upperDiscount, validationContext));
         }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(10)]
+        [InlineData(10.1)]
+        [InlineData(11)]
+        //required and negative condition is valid here since that's the responsibility of Required and RangeAttribute
+        public void RangeValidatorPassValidationShouldSuccessTheory(decimal input)
+        {
+            var rateOption = new RateOption
+            {
+            };
+
+            var greaterThanAttribute = new RangeAttribute(0d, 10d);
+            var validationContext = new ValidationContext(rateOption);
+
+            //No exception means success
+            greaterThanAttribute.Validate(input, validationContext);
+        }
     }
 }

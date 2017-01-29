@@ -30,8 +30,14 @@
                   <span class="input-group-addon">$</span>
                   <input type="number" id="inflow${$index + 1}" class="form-control" placeholder="Inflow ${$index + 1}" value.bind="inflow.value & validate"
                     step="any">
+                    <span click.delegate="removeInflow($index)" class="input-group-addon fa fa-remove no-border-left"></span>
+                    <span click.delegate="addInflow($index)" class="input-group-addon fa fa-plus"></span>
+                     <!--<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>-->
                 </div>
+               
               </div>
+              
             </div>
             <hr />
 
